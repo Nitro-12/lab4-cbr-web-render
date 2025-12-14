@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Курсы ЦБ РФ</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <style>
+    /* Ровные числовые колонки и стабильная сетка */
+    table{ table-layout: fixed; }
+    .num{
+      text-align:right;
+      white-space:nowrap;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1, "lnum" 1;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Roboto Mono", monospace;
+    }
+    .code{ white-space:nowrap; }
+    .name{ white-space:normal; }
+
+    /* Тултип для графика */
+    #chart-tooltip{
+      position:absolute; pointer-events:none; display:none;
+      background:#0b1220; color:#fff; padding:6px 8px;
+      border-radius:8px; font:12px system-ui, -apple-system, Segoe UI, Roboto;
+      box-shadow:0 6px 16px rgba(0,0,0,.25); z-index:3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="page-header">
+      <div class="title-wrap">
+        <h1>Курсы валют ЦБ РФ</h1>
+        <p class="muted">Таблица, конвертер и график курса за период.</p>
+      </div>
+      <div class="actions">
+        <button id="toggle-theme" class="btn ghost" title="Переключить тему">🌓</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Курсы на дату</h2>
+        <div class="controls">
+          <label>Дата
+            <input id="date-input" type="date" placeholder="гггг-мм-дд" />
+          </label>
+          <button id="btn-load" class="btn primary">Загрузить</button>
+          <a id="btn-export" class="btn" href="#" download>Экспорт CSV</a>
+          <span id="date-label" class="muted"></span>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <label class="grow">Фильтр
+          <input id="filter" type="text" placeholder="Например: usd, доллар" />
+        </label>
+        <span class="muted small" id="count-label"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table id="rates-table">
+          <!-- фиксируем ширины колонок, чтобы ничего не «ехало» -->
+          <colgroup>
+            <col style="width:80px" />
+            <col style="width:110px" />
+            <col style="width:170px" />
+            <col style="width:160px" />
+            <col />
+          </colgroup>
+          <thead>
+            <tr>
+              <th data-sort="char_code">Код</th>
+              <th data-sort="nominal">Номинал</th>
+              <th data-sort="value">RUB за номинал</th>
+              <th data-sort="per1">RUB за 1</th>
+              <th data-sort="name" class="w-name">Название</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div id="loader" class="loader hidden">Загрузка…</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Конвертер</h2>
+      </div>
+      <div class="grid grid-5">
+        <label>Из
+          <input id="from-code" list="codes" placeholder="USD" />
+        </label>
+        <div class="swap-wrap">
+          <button id="btn-swap" class="btn">⇄</button>
+        </div>
+        <label>В
+          <input id="to-code" list="codes" placeholder="RUB" />
+        </label>
+        <label>Сумма
+          <input id="amount" type="number" step="0.01" value="1" />
+        </label>
+        <label>Дата
+          <input id="date-conv" type="date" placeholder="гггг-мм-дд" />
+        </label>
+      </div>
+      <div class="row mt">
+        <button id="btn-convert" class="btn primary">Конвертировать</button>
+        <div id="conv-result" class="result grow"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>График изменения курса</h2>
+      </div>
+      <div class="grid grid-graph">
+        <label>Валюта
+          <input id="hist-code" list="codes" placeholder="USD"/>
+        </label>
+        <label>Период с
+          <input id="hist-from" type="date"/>
+        </label>
+        <label>по
+          <input id="hist-to" type="date"/>
+        </label>
+        <button id="btn-history" class="btn primary">Построить</button>
+      </div>
+      <div class="chart-wrap" style="position:relative">
+        <canvas id="chart" width="1000" height="360"></canvas>
+        <div id="chart-tooltip"></div>
+        <div id="chart-empty" class="muted small center">Выберите валюту и период, затем нажмите «Построить»</div>
+      </div>
+    </section>
+
+    <footer class="muted center small mt-lg">
+      API: <code>/cbr/daily</code> · <code>/cbr/convert</code> · <code>/cbr/daily.csv</code> · <code>/cbr/history</code>
+    </footer>
+  </div>
+
+  <datalist id="codes">
+    {% for c in codes %}
+      <option value="{{ c }}"></option>
+    {% endfor %}
+  </datalist>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
