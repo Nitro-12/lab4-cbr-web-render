@@ -137,6 +137,20 @@ function toggleTheme(){
 }
 
 /* ===================== ГРАФИК + ХОВЕР ===================== */
+// --- RESPONSIVE CANVAS FIXES ---
+function fitCanvas(canvas, aspect = 0.36) {
+  const dpr = window.devicePixelRatio || 1;
+  const cssW = canvas.clientWidth || 1000;
+  const cssH = Math.max(240, Math.round(cssW * aspect));
+  canvas.style.height = cssH + 'px';
+
+  const w = Math.round(cssW * dpr);
+  const h = Math.round(cssH * dpr);
+  const changed = (canvas.width !== w || canvas.height !== h);
+  if (changed) { canvas.width = w; canvas.height = h; }
+  return changed;
+}
+
 function drawLineChart(canvas, points){
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
@@ -312,6 +326,9 @@ async function buildHistory(){
     const points = data.points || [];
     const canvas = qs('#chart');
 
+    canvas.__lastPoints = points;
+    fitCanvas(canvas);
+
     drawLineChart(canvas, points);
     qs('#chart-empty').style.display = points.length ? 'none' : 'block';
 
@@ -346,6 +363,12 @@ window.addEventListener('DOMContentLoaded', () => {
   qs('#btn-history').addEventListener('click', buildHistory);
 
   if (localStorage.getItem('theme-dark') === '1') document.documentElement.classList.add('dark');
+
+  window.addEventListener('resize', debounce(() => {
+    const c = qs('#chart');
+    if (!c || !c.__lastPoints) return;
+    if (fitCanvas(c)) drawLineChart(c, c.__lastPoints);
+  }, 150));
 
   loadRates();
 });
