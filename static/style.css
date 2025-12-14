@@ -89,3 +89,57 @@ canvas { width: 100%; height: auto; display: block; }
 /* Таблица не прыгает по ширинам колонок */
 table { table-layout: fixed; }
 
+/* --- RESPONSIVE FIXES (phone/tablet) --- */
+
+/* Чтобы элементы внутри grid/controls не распирали сетку */
+label { min-width: 0; }
+.grid label, .controls label, .toolbar label { min-width: 0; }
+
+/* Внутри сеток/панелей инпуты должны уметь сжиматься */
+.grid input[type="date"],
+.grid input[list],
+.grid input[type="number"],
+.grid input[type="text"],
+.controls input[type="date"],
+.controls input[list],
+.controls input[type="number"],
+.controls input[type="text"],
+.toolbar input[type="text"] {
+  min-width: 0;
+  width: 100%;
+}
+
+/* row используется в HTML */
+.row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+/* Плавный горизонтальный скролл таблицы на iOS */
+.table-wrap { -webkit-overflow-scrolling: touch; }
+
+/* Планшет */
+@media (max-width: 900px) {
+  .page-header { flex-wrap: wrap; }
+  .toolbar { flex-wrap: wrap; }
+}
+
+/* Телефон */
+@media (max-width: 640px) {
+  .container { padding: 12px; }
+
+  .page-header { flex-direction: column; align-items: stretch; }
+  .actions { display: flex; justify-content: flex-end; }
+
+  .card-head { flex-direction: column; align-items: stretch; }
+  .controls { width: 100%; }
+
+  /* Сетки в 1 колонку */
+  .grid-5 { grid-template-columns: 1fr; }
+  .grid-graph { grid-template-columns: 1fr; }
+  .swap-wrap { padding-bottom: 0; justify-content: flex-start; }
+
+  /* Кнопки/ссылки во всю ширину (удобно на телефоне) */
+  .btn { width: 100%; justify-content: center; }
+
+  /* Чтобы название колонки не раздувало таблицу */
+  .w-name { min-width: 200px; }
+}
+
