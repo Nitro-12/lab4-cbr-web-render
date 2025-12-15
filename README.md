@@ -1,4 +1,4 @@
-# CBR FastAPI Web (Lab 2/4)
+# CBR FastAPI Web (Lab 4)
 
 Небольшой веб-сервис на FastAPI с HTML-страницей и API для получения курсов ЦБ РФ.
 
